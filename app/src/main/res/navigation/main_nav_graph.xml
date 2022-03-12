@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_nav_graph.xml"
+    app:startDestination="@id/locations_frag">
+
+    <fragment
+        android:id="@+id/locations_frag"
+        android:name="com.cs492.ringmanager.LocationsFragment">
+        <action
+            android:id="@+id/navigate_to_add_location_frag"
+            app:destination="@id/add_location_frag" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/add_location_frag"
+        android:name="com.cs492.ringmanager.AddLocationFrag">
+    </fragment>
+
+    <action
+        android:id="@+id/navigate_to_settings_frag"
+        app:destination="@id/settings_frag" />
+
+    <fragment
+        android:id="@+id/settings_frag"
+        android:name="com.cs492.ringmanager.SettingsFragment">
+    </fragment>
+</navigation>

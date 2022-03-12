@@ -3,7 +3,7 @@ package com.cs492.ringmanager.data
 import androidx.room.Entity
 
 @Entity(primaryKeys = ["latitude", "longitude"])
-data class Location(
+data class LocationWithRing(
     val latitude: Double,
     val longitude: Double,
     val radius: Float,

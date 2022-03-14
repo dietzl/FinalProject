@@ -1,29 +1,75 @@
 package com.cs492.ringmanager
 
+import android.annotation.SuppressLint
 import android.app.Application
-import androidx.work.*
-import android.app.NotificationManager
-import com.cs492.ringmanager.work.GeofenceWorker
-import java.util.concurrent.TimeUnit
+import android.app.PendingIntent
+import android.content.Intent
+import android.util.Log
+import com.cs492.ringmanager.api.MovieGluService
+import com.cs492.ringmanager.data.LocationRepository
+import com.cs492.ringmanager.work.GeofenceBroadcastReceiver
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationServices
+
+private const val TAG = "MainApplication"
 
 class RingManagerApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
+    private lateinit var geofencingClient: GeofencingClient
+    val locationRepo = LocationRepository(service = MovieGluService())
 
-        launchGeofenceWorker()
+    private val geofencePendingIntent: PendingIntent by lazy {
+        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
+        intent.action = SILENCE_GEOFENCE_EVENT
+        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
-    private fun launchGeofenceWorker() {
-        val constraints = Constraints.Builder()
-            .setRequiresBatteryNotLow(true)
+    override fun onCreate() {
+        super.onCreate()
+        geofencingClient = LocationServices.getGeofencingClient(this)
+        setupGeofence()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setupGeofence() {
+        val allLocations = locationRepo.getAllLocations()
+        val geofenceList = mutableListOf<Geofence>()
+
+        for(location in allLocations) {
+            geofenceList.add(
+                Geofence.Builder()
+                    .setRequestId(location.latitude.toString() + "," + location.longitude.toString())
+                    .setCircularRegion(
+                        location.latitude,
+                        location.longitude,
+                        location.radius
+                    )
+                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                    .build()
+            )
+        }
+        val geofencingRequest = GeofencingRequest.Builder()
+            .addGeofences(geofenceList)
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             .build()
-        val workRequest = PeriodicWorkRequestBuilder<GeofenceWorker>(
-            15,
-            TimeUnit.MINUTES
-        ).setConstraints(constraints).build()
-        //This is a hackish way to break the 15 minute interval limit.
-//        val workRequest = OneTimeWorkRequestBuilder<GeofenceWorker>()
-//            .setInitialDelay(5, TimeUnit.MINUTES)
-        WorkManager.getInstance(this).enqueue(workRequest)
+        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+            addOnCompleteListener {
+                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+                    addOnSuccessListener {
+                        Log.i(TAG, "Geo fences added to Geofencing Client.")
+                    }
+                    addOnFailureListener {
+                        Log.e(TAG, "Failed to add geo fences to Geofencing Client.")
+                    }
+                }
+            }
+        }
+    }
+
+    companion object {
+        internal const val SILENCE_GEOFENCE_EVENT =
+            "RingManager.geoFence.ACTION_GEOFENCE_EVENT"
     }
 }

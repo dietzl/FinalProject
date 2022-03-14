@@ -7,6 +7,5 @@ import java.io.Serializable
 data class LocationData(
     val latitude: Double,
     val longitude: Double,
-    val radius: Float,
-    val ringerMode: Int //This is the value of the AudioManager.RINGER_MODE enumeration
+    val radius: Float
 ) : Serializable

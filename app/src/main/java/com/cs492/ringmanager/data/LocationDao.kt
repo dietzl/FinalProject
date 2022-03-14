@@ -6,10 +6,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LocationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(location: LocationWithRing)
+    suspend fun insert(location: LocationData)
 
-    @Query("SELECT * FROM LocationWithRing")
-    fun getAllLocations(): Flow<List<LocationWithRing>>
+    @Delete
+    suspend fun delete(location: LocationData)
 
+    @Query("SELECT * FROM LocationData")
+    fun getAllLocations(): Flow<List<LocationData>>
+
+    @Query("SELECT * FROM LocationData")
+    fun getAllLocationsOnce(): List<LocationData>
 
 }

@@ -4,7 +4,7 @@ import androidx.room.Entity
 import java.io.Serializable
 
 @Entity(primaryKeys = ["latitude", "longitude"])
-data class LocationWithRing(
+data class LocationData(
     val latitude: Double,
     val longitude: Double,
     val radius: Float,

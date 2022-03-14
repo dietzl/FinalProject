@@ -7,7 +7,7 @@ import androidx.room.Database
 
 const val DATABASE_NAME = "ring-manager-db"
 
-@Database(entities = [LocationWithRing::class], version = 1)
+@Database(entities = [LocationData::class], version = 1)
 abstract class LocationDatabase : RoomDatabase() {
     abstract fun locationDao(): LocationDao
 

@@ -14,7 +14,7 @@ class LocationsFragment : Fragment() {
         fun newInstance() = LocationsFragment()
     }
 
-    private lateinit var viewModel: LocationsViewModel
+    private lateinit var viewModel: BookmarkedLocationsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,8 +25,8 @@ class LocationsFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(LocationsViewModel::class.java)
-        // TODO: Use the ViewModel
+        viewModel = ViewModelProvider(this).get(BookmarkedLocationsViewModel::class.java)
+
     }
 
 }

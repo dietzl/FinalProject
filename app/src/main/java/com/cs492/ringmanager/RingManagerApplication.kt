@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
 import com.cs492.ringmanager.api.MovieGluService
+import com.cs492.ringmanager.data.LocationDatabase
 import com.cs492.ringmanager.data.LocationRepository
 import com.cs492.ringmanager.work.GeofenceBroadcastReceiver
 import com.google.android.gms.location.Geofence
@@ -17,7 +18,8 @@ private const val TAG = "MainApplication"
 
 class RingManagerApplication : Application() {
     private lateinit var geofencingClient: GeofencingClient
-    val locationRepo = LocationRepository(service = MovieGluService())
+    private val dao = LocationDatabase.getInstance(this).locationDao()
+    val locationRepo = LocationRepository(dao, service = MovieGluService())
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
@@ -33,7 +35,7 @@ class RingManagerApplication : Application() {
 
     @SuppressLint("MissingPermission")
     private fun setupGeofence() {
-        val allLocations = locationRepo.getAllLocations()
+        val allLocations = locationRepo.getAllLocationsOnce()
         val geofenceList = mutableListOf<Geofence>()
 
         for(location in allLocations) {

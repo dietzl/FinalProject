@@ -1,26 +1,32 @@
 package com.cs492.ringmanager.data
 
-import android.location.Location
 import com.cs492.ringmanager.api.MovieGluService
+import kotlinx.coroutines.flow.Flow
 
-class LocationRepository(private val service: MovieGluService) {
-    fun getAllLocations(): List<LocationWithRing> {
-        val allLocations = mutableListOf<LocationWithRing>()
-        allLocations.addAll(getUserLocations())
+class LocationRepository(
+    private val dao: LocationDao,
+    private val service: MovieGluService) {
+
+    fun getAllLocations(): List<LocationData> {
+        val allLocations = mutableListOf<LocationData>()
+        allLocations.addAll(getUserLocationsOnce())
         allLocations.addAll(getServiceLocations())
         return allLocations
     }
 
-    fun getUserLocations(): List<LocationWithRing> {
-        val userLocations = listOf<LocationWithRing>()
-        TODO("Implement repository methods")
-        return userLocations
+    fun getUserLocations(): Flow<List<LocationData>> {
+        return dao.getAllLocations()
     }
 
-    fun getServiceLocations(): List<LocationWithRing>{
-        val serviceLocations = mutableListOf<LocationWithRing>()
+    fun getUserLocationsOnce(): List<LocationData> {
+        return dao.getAllLocationsOnce()
+    }
+
+    fun getServiceLocations(): List<LocationData>{
+        val serviceLocations = mutableListOf<LocationData>()
         TODO("Add caching logic. If we haven't moved beyond a certain distance then we should pull from the cache." +
-                "If we have moved far enough away then dump the locations and call the movieglu api again.")
+                "If we have moved far enough away then dump the locations and call the movieglu api again." +
+                "")
         return serviceLocations
     }
 }

@@ -5,8 +5,8 @@ import java.io.Serializable
 
 @Entity(primaryKeys = ["latitude", "longitude"])
 data class LocationWithRing(
-    val latitude: Double,
-    val longitude: Double,
-    val radius: Float,
-    val ringerMode: Int //This is the value of the AudioManager.RINGER_MODE enumeration
+    @Json(name = "lat") val latitude: Double,
+    @Json(name = "lng") val longitude: Double,
+    val radius: Float = 75,
 ) : Serializable
+

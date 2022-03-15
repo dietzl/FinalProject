@@ -5,8 +5,8 @@ import java.io.Serializable
 
 @Entity(primaryKeys = ["latitude", "longitude"])
 data class LocationData(
-    val latitude: Double,
-    val longitude: Double,
-    val radius: Float,
+    @Json(name = "lat") val latitude: Double,
+    @Json(name = "lng") val longitude: Double,
+    val radius: Float = 75,
     val name: String
 ) : Serializable

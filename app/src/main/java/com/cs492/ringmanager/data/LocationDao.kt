@@ -15,6 +15,6 @@ interface LocationDao {
     fun getAllLocations(): Flow<List<LocationData>>
 
     @Query("SELECT * FROM LocationData")
-    fun getAllLocationsOnce(): List<LocationData>
+    suspend fun getAllLocationsOnce(): List<LocationData>
 
 }

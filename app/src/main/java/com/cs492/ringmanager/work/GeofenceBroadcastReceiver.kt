@@ -5,8 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import com.cs492.ringmanager.RingManagerApplication
-import com.cs492.ringmanager.RingManagerApplication.Companion.SILENCE_GEOFENCE_EVENT
-import com.cs492.ringmanager.RingManagerApplication.Companion.RECACHE_GEOFENCE_EVENT
+import com.cs492.ringmanager.ui.MainActivity
+import com.cs492.ringmanager.ui.MainActivity.Companion.RECACHE_GEOFENCE_EVENT
+import com.cs492.ringmanager.ui.MainActivity.Companion.SILENCE_GEOFENCE_EVENT
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
@@ -16,8 +17,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             audiomanager.ringerMode = AudioManager.RINGER_MODE_SILENT
         }
         if(intent.action == RECACHE_GEOFENCE_EVENT){
-            (context.applicationContext as RingManagerApplication).setupTheaterGeofences()
-            (context.applicationContext as RingManagerApplication).setupRecacheGeofence()
+            (context as MainActivity).setupTheaterGeofences()
+            context.setupRecacheGeofence()
         }
     }
 }

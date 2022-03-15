@@ -7,5 +7,6 @@ import java.io.Serializable
 data class LocationData(
     val latitude: Double,
     val longitude: Double,
-    val radius: Float
+    val radius: Float,
+    val name: String
 ) : Serializable

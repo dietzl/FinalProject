@@ -7,20 +7,18 @@ class LocationRepository(
     private val dao: LocationDao,
     private val service: MovieGluService) {
 
-    fun getAllLocations(): List<LocationData> {
+    suspend fun getAllLocations(): List<LocationData> {
         val allLocations = mutableListOf<LocationData>()
         allLocations.addAll(getUserLocationsOnce())
         allLocations.addAll(getServiceLocations())
         return allLocations
     }
 
-    fun getUserLocations(): Flow<List<LocationData>> {
-        return dao.getAllLocations()
-    }
+    fun getUserLocations(): Flow<List<LocationData>> = dao.getAllLocations()
+    suspend fun getUserLocationsOnce(): List<LocationData> = dao.getAllLocationsOnce()
+    suspend fun addLocation(location: LocationData) = dao.insert(location)
+    suspend fun removeUserLocation(location: LocationData) = dao.delete(location)
 
-    fun getUserLocationsOnce(): List<LocationData> {
-        return dao.getAllLocationsOnce()
-    }
 
     fun getServiceLocations(): List<LocationData>{
         val serviceLocations = mutableListOf<LocationData>()
@@ -29,4 +27,5 @@ class LocationRepository(
                 "")
         return serviceLocations
     }
+
 }

@@ -6,27 +6,43 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.RecyclerView
 import com.cs492.ringmanager.R
+import com.cs492.ringmanager.data.LocationData
 
-class LocationsFragment : Fragment() {
+class LocationsFragment : Fragment(R.layout.locations_fragment) {
 
-    companion object {
-        fun newInstance() = LocationsFragment()
+    private lateinit var viewModel: LocationsViewModel
+    private lateinit var locationAdapter: LocationAdapter
+    private lateinit var locationListRV: RecyclerView
+
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        locationAdapter = LocationAdapter(::onLocationItemClick)
+        locationListRV = view.findViewById(R.id.rv_location_list)
+        locationListRV.setHasFixedSize(true)
+        locationListRV.adapter = locationAdapter
+        setHasOptionsMenu(true)
+
+        //Update the list of locations if data changes
+        viewModel.locations.observe(viewLifecycleOwner) { locations ->
+            if (locations != null && !locations.isEmpty()) {
+                locationAdapter.updateLocations(locations)
+                locationListRV.visibility = View.VISIBLE
+                locationListRV.scrollToPosition(0)
+            }
+        }
     }
 
-    private lateinit var viewModel: BookmarkedLocationsViewModel
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.locations_fragment, container, false)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(BookmarkedLocationsViewModel::class.java)
-
+    private fun onLocationItemClick(location: LocationData) {
+        viewModel.removeLocation(location)
     }
 
 }

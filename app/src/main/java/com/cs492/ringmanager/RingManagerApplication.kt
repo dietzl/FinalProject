@@ -15,11 +15,12 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 
 private const val TAG = "MainApplication"
+private const val RECACHE_DISTANCE_IN_METERS = 5000F
 
 class RingManagerApplication : Application() {
     private lateinit var geofencingClient: GeofencingClient
     private val dao = LocationDatabase.getInstance(this).locationDao()
-    val locationRepo = LocationRepository(dao, service = MovieGluService())
+    private val locationRepo = LocationRepository(dao, service = MovieGluService())
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
@@ -27,15 +28,23 @@ class RingManagerApplication : Application() {
         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
+    private val recachePendingIntent: PendingIntent by lazy {
+        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
+        intent.action = RECACHE_GEOFENCE_EVENT
+        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
     override fun onCreate() {
         super.onCreate()
         geofencingClient = LocationServices.getGeofencingClient(this)
-        setupGeofence()
+
+        setupTheaterGeofences()
+        setupRecacheGeofence()
     }
 
     @SuppressLint("MissingPermission")
-    private fun setupGeofence() {
-        val allLocations = locationRepo.getAllLocationsOnce()
+    internal fun setupTheaterGeofences() {
+        val allLocations = locationRepo.getAllLocations()
         val geofenceList = mutableListOf<Geofence>()
 
         for(location in allLocations) {
@@ -70,8 +79,52 @@ class RingManagerApplication : Application() {
         }
     }
 
+    /**
+     * Sets up a geofence that will trigger when the user leaves an area
+     * to notify the app to update the cache of theater locations in the new area
+     */
+    @SuppressLint("MissingPermission")
+    internal fun setupRecacheGeofence() {
+        val locationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        locationClient.lastLocation.addOnSuccessListener { location ->
+            val geoFence = Geofence.Builder()
+                .setRequestId(RECACHE_GEOFENCE_KEY)
+                .setCircularRegion(
+                    location.latitude,
+                    location.longitude,
+                    RECACHE_DISTANCE_IN_METERS
+                )
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
+                .build()
+
+            val geofencingRequest = GeofencingRequest.Builder()
+                .addGeofence(geoFence)
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT)
+                .build()
+            //Remove any existing geofences of this type before we add a new one
+            geofencingClient.removeGeofences(recachePendingIntent)?.run {
+                addOnCompleteListener {
+                    geofencingClient.addGeofences(geofencingRequest, recachePendingIntent)?.run {
+                        addOnSuccessListener {
+                            Log.i(TAG, "Recache geo fence added to geofencing client.")
+                        }
+                        addOnFailureListener {
+                            Log.e(TAG, "Failed to add recaching geo fence to Geofencing Client.")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
         internal const val SILENCE_GEOFENCE_EVENT =
-            "RingManager.geoFence.ACTION_GEOFENCE_EVENT"
+            "RingManager.geoFence.SILENCE_GEOFENCE_EVENT"
+        internal const val RECACHE_GEOFENCE_EVENT =
+            "RingManager.geoFence.RECACHE_GEOFENCE_EVENT"
+        internal const val RECACHE_GEOFENCE_KEY =
+            "RingManager.geoFence.RECACHE_GEOFENCE"
     }
 }

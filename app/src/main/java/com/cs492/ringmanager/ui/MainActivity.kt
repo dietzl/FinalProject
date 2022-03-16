@@ -27,6 +27,8 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "MainActivity"
 private const val RECACHE_DISTANCE_IN_METERS = 5000F
+private const val CURRENT_LOCATION_NAME = "Current Location"
+private const val DEFAULT_RADIUS = 75F
 
 class MainActivity : AppCompatActivity() {
 
@@ -65,15 +67,21 @@ class MainActivity : AppCompatActivity() {
     fun setupTheaterGeofences() {
         lifecycleScope.launch {
             val locationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
-            //Get current location because we're going to find theater locations nearby
-            var currentLocation = LocationData(-22.0, 14.0, 75F, "Null Location")
 
+            //Get current location because we're going to find theater locations nearby
+
+            //This doesn't work because we aren't allowed to wait in the main thread apparently.
+            //val currentLocation = Tasks.await(locationClient.lastLocation)
+            //val currentLocationData = LocationData(currentLocation.longitude, currentLocation.latitude, 75F, "Current Location")
+
+            //This is a dirty hack to just make it run but it's really not ok
+            var currentLocationData = LocationData(-22.0, 14.0, DEFAULT_RADIUS, CURRENT_LOCATION_NAME)
             locationClient.lastLocation.addOnSuccessListener { location ->
-                currentLocation =
-                    LocationData(location.latitude, location.longitude, 75F, "CurrentLocation")
+                currentLocationData =
+                    LocationData(location.latitude, location.longitude, DEFAULT_RADIUS, CURRENT_LOCATION_NAME)
             }
             //Get both user locations and locations returned by movieglu
-            val allLocations = locationRepo.getAllLocations(currentLocation)
+            val allLocations = locationRepo.getAllLocations(currentLocationData)
             //Make geofences for all locations
             val geofenceList = mutableListOf<Geofence>()
             for (location in allLocations) {

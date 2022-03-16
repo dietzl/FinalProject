@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Ring Manager</string>
-<<<<<<< Updated upstream
-=======
+
     <string name="et_input_radius_default">75</string>
     <string name="button_add_location_text">Add Location</string>
 
@@ -10,5 +9,5 @@
     <string name="pref_check_movieglu_summaryoff" translatable="false">Check Movieglu Off</string>
     <string name="pref_check_movieglu_summaryon" translatable="false">Check Movieglu On</string>
 
->>>>>>> Stashed changes
+
 </resources>

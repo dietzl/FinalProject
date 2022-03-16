@@ -3,6 +3,7 @@ package com.cs492.ringmanager.ui
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.widget.Button
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.cs492.ringmanager.R
@@ -17,6 +18,8 @@ class LocationsFragment : Fragment(R.layout.locations_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val searchBtn: Button = view.findViewById(R.id.button_add_location)
 
         locationAdapter = LocationAdapter(::onLocationItemClick)
         locationListRV = view.findViewById(R.id.rv_location_list)

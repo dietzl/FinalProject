@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Ring Manager</string>
     <string name="et_input_radius_default">75</string>
+    <string name="add_location_text">Add Location</string>
+    <string name="add_radius_text">Add Radius</string>
+    <string name="search_button">Search</string>
     <string name="button_add_location_text">Add Location</string>
 </resources>

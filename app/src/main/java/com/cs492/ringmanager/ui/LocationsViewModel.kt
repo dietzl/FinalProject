@@ -10,9 +10,6 @@ import kotlinx.coroutines.launch
 
 class LocationsViewModel(application: Application) : AndroidViewModel(application){
 
-    private val _locations = MutableLiveData<List<LocationData>>(null)
-    val locations: LiveData<List<LocationData>> = _locations
-
     private val repository = LocationRepository(
         LocationDatabase.getInstance(application).locationDao(),
         MovieGluService.create()
@@ -26,14 +23,9 @@ class LocationsViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun getAllLocations() {
-        viewModelScope.launch {
-            locations.getAllLocations()
-        }
-    }
-
     fun removeLocation(location: LocationData) {
-        repository.removeUserLocation(location)
-        _locations.
+        viewModelScope.launch {
+            repository.removeUserLocation(location)
+        }
     }
 }

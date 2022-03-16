@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import com.cs492.ringmanager.R
-import android.media.AudioManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +14,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.cs492.ringmanager.api.MovieGluService
+import com.cs492.ringmanager.data.LocationDao
+import com.cs492.ringmanager.data.LocationData
 import com.cs492.ringmanager.data.LocationDatabase
 import com.cs492.ringmanager.data.LocationRepository
 import com.cs492.ringmanager.work.GeofenceBroadcastReceiver
@@ -33,8 +34,8 @@ class MainActivity : AppCompatActivity() {
 
     val movieGluService = MovieGluService.create()
     private lateinit var geofencingClient: GeofencingClient
-    private val dao = LocationDatabase.getInstance(this).locationDao()
-    private val locationRepo = LocationRepository(dao, movieGluService)
+    private lateinit var dao: LocationDao
+    private lateinit var locationRepo: LocationRepository
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
@@ -51,6 +52,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        dao = LocationDatabase.getInstance(this).locationDao()
+        locationRepo = LocationRepository(dao, movieGluService)
         setupFragments()
         geofencingClient = LocationServices.getGeofencingClient(this)
 
@@ -61,9 +64,17 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     fun setupTheaterGeofences() {
         lifecycleScope.launch {
-            val allLocations = locationRepo.getAllLocations()
+            val locationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
+            //Get current location because we're going to find theater locations nearby
+            lateinit var currentLocation: LocationData
+            locationClient.lastLocation.addOnSuccessListener { location ->
+                currentLocation =
+                    LocationData(location.latitude, location.longitude, 75F, "CurrentLocation")
+            }
+            //Get both user locations and locations returned by movieglu
+            val allLocations = locationRepo.getAllLocations(currentLocation)
+            //Make geofences for all locations
             val geofenceList = mutableListOf<Geofence>()
-
             for (location in allLocations) {
                 geofenceList.add(
                     Geofence.Builder()
@@ -84,14 +95,15 @@ class MainActivity : AppCompatActivity() {
                 .build()
             geofencingClient.removeGeofences(geofencePendingIntent)?.run {
                 addOnCompleteListener {
-                    geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
-                        addOnSuccessListener {
-                            Log.i(TAG, "Geo fences added to Geofencing Client.")
+                    geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)
+                        ?.run {
+                            addOnSuccessListener {
+                                Log.i(TAG, "Geo fences added to Geofencing Client.")
+                            }
+                            addOnFailureListener {
+                                Log.e(TAG, "Failed to add geo fences to Geofencing Client.")
+                            }
                         }
-                        addOnFailureListener {
-                            Log.e(TAG, "Failed to add geo fences to Geofencing Client.")
-                        }
-                    }
                 }
             }
         }

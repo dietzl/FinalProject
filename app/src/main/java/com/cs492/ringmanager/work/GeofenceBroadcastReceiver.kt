@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import com.cs492.ringmanager.RingManagerApplication
 import com.cs492.ringmanager.ui.MainActivity
 import com.cs492.ringmanager.ui.MainActivity.Companion.RECACHE_GEOFENCE_EVENT
 import com.cs492.ringmanager.ui.MainActivity.Companion.SILENCE_GEOFENCE_EVENT

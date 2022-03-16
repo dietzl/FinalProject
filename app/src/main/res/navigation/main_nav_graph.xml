@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/locations_frag"
-        android:name="com.cs492.ringmanager.LocationsFragment">
+        android:name="com.cs492.ringmanager.ui.LocationsFragment">
         <action
             android:id="@+id/navigate_to_add_location_frag"
             app:destination="@id/add_location_frag" />
@@ -14,15 +14,15 @@
 
     <fragment
         android:id="@+id/add_location_frag"
-        android:name="com.cs492.ringmanager.AddLocationFrag">
+        android:name="com.cs492.ringmanager.ui.AddLocationFragment">
     </fragment>
 
     <action
-        android:id="@+id/navigate_to_settings_frag"
+        android:id="@+id/navigate_to_settings_fragment"
         app:destination="@id/settings_frag" />
 
     <fragment
         android:id="@+id/settings_frag"
-        android:name="com.cs492.ringmanager.SettingsFragment">
+        android:name="com.cs492.ringmanager.ui.SettingsFragment">
     </fragment>
 </navigation>

@@ -1,25 +1,18 @@
 package com.cs492.ringmanager.ui
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.cs492.ringmanager.R
 import com.cs492.ringmanager.data.LocationData
 
 class LocationsFragment : Fragment(R.layout.locations_fragment) {
 
-    private lateinit var viewModel: LocationsViewModel
+    private val viewModel: LocationsViewModel by viewModels()
     private lateinit var locationAdapter: LocationAdapter
     private lateinit var locationListRV: RecyclerView
-
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,7 +24,7 @@ class LocationsFragment : Fragment(R.layout.locations_fragment) {
         setHasOptionsMenu(true)
 
         //Update the list of locations if data changes
-        viewModel.locations.observe(viewLifecycleOwner) { locations ->
+        viewModel.savedLocations.observe(viewLifecycleOwner) { locations ->
             if (locations != null && !locations.isEmpty()) {
                 locationAdapter.updateLocations(locations)
                 locationListRV.visibility = View.VISIBLE

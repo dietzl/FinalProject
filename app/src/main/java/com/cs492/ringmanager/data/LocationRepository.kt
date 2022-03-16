@@ -7,10 +7,10 @@ class LocationRepository(
     private val dao: LocationDao,
     private val service: MovieGluService) {
 
-    suspend fun getAllLocations(): List<LocationData> {
+    suspend fun getAllLocations(location: LocationData): List<LocationData> {
         val allLocations = mutableListOf<LocationData>()
         allLocations.addAll(getUserLocationsOnce())
-        allLocations.addAll(getServiceLocations())
+        allLocations.addAll(getServiceLocations(location))
         return allLocations
     }
 
@@ -19,12 +19,9 @@ class LocationRepository(
     suspend fun addLocation(location: LocationData) = dao.insert(location)
     suspend fun removeUserLocation(location: LocationData) = dao.delete(location)
 
-
-    fun getServiceLocations(): List<LocationData>{
+    suspend fun getServiceLocations(location: LocationData): List<LocationData>{
         val serviceLocations = mutableListOf<LocationData>()
-        TODO("Add caching logic. If we haven't moved beyond a certain distance then we should pull from the cache." +
-                "If we have moved far enough away then dump the locations and call the movieglu api again." +
-                "")
+        service.getCinemasNearbyByLocation(location)
         return serviceLocations
     }
 

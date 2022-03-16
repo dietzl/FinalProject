@@ -66,7 +66,8 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val locationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
             //Get current location because we're going to find theater locations nearby
-            lateinit var currentLocation: LocationData
+            var currentLocation = LocationData(-22.0, 14.0, 75F, "Null Location")
+
             locationClient.lastLocation.addOnSuccessListener { location ->
                 currentLocation =
                     LocationData(location.latitude, location.longitude, 75F, "CurrentLocation")

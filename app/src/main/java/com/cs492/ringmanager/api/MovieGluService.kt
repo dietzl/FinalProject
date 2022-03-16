@@ -1,5 +1,6 @@
 package com.cs492.ringmanager.api
 
+import com.cs492.ringmanager.data.Cinemas
 import com.cs492.ringmanager.data.LocationData
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -23,7 +24,7 @@ interface MovieGluService {
     suspend fun getCinemasNearby(
         @Header("Geolocation") geolocation: String,
         @Header("Device-datetime") datetime: String,
-        @Query("n") maxResults: Int = 25): List<LocationData>
+        @Query("n") maxResults: Int = 25): Cinemas
 
     companion object{
         private const val BASE_URL = "https://api-gate2.movieglu.com"

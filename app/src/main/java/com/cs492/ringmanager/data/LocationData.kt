@@ -11,3 +11,7 @@ data class LocationData(
     val radius: Float = 75F,
     val name: String
 ) : Serializable
+
+data class Cinemas(
+    val cinemas: List<LocationData>
+)

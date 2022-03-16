@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import com.cs492.ringmanager.R
 import com.cs492.ringmanager.api.MovieGluService
 import com.cs492.ringmanager.data.LocationDao
@@ -45,8 +47,7 @@ class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
         searchBtn.setOnClickListener {
             val locationName = locationBoxET.text.toString()
             val radiusString = radiusBoxET.text.toString()
-
-            if(!TextUtils.isEmpty(locationName) && !(TextUtils.isEmpty(radiusString))) {
+            if(!TextUtils.isEmpty(locationName) && (!TextUtils.isEmpty(radiusString))) {
                 val radiusFloat = radiusString.toFloat()
                 if(radiusFloat >= 50) {
                     fusedLocationClient.lastLocation
@@ -71,6 +72,7 @@ class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
                             lifecycleScope.launch {
                                 repository.addLocation(location)
                             }
+                            Navigation.findNavController(view).navigateUp()
                         }
                 }
                 else {

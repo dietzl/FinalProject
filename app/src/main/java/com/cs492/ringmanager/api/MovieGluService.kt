@@ -9,8 +9,6 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
 import retrofit2.http.Headers
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 //https://developer.movieglu.com/v2/api-index/cinemasNearby/
 //https://api-gate2.movieglu.com/cinemasNearby/?n=25
@@ -26,15 +24,6 @@ interface MovieGluService {
         @Header("Geolocation") geolocation: String,
         @Header("Device-datetime") datetime: String,
         @Query("n") maxResults: Int = 25): List<LocationData>
-
-    suspend fun getCinemasNearbyByLocation(location: LocationData): List<LocationData>{
-        val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS[xxx][xx][X]")
-        val currentTime = LocalDateTime.now()
-
-        return getCinemasNearby(location.latitude.toString()+";"+location.longitude,
-            currentTime.format(dtf)
-        )
-    }
 
     companion object{
         private const val BASE_URL = "https://api-gate2.movieglu.com"

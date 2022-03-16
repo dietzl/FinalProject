@@ -27,7 +27,7 @@ interface MovieGluService {
         @Query("n") maxResults: Int = 25): Cinemas
 
     companion object{
-        private const val BASE_URL = "https://api-gate2.movieglu.com"
+        private const val BASE_URL = "https://api-gate2.movieglu.com/"
         fun create() : MovieGluService {
             val moshi = Moshi.Builder()
                 .addLast(KotlinJsonAdapterFactory())

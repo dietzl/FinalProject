@@ -19,10 +19,8 @@ import com.cs492.ringmanager.data.LocationData
 import com.cs492.ringmanager.data.LocationDatabase
 import com.cs492.ringmanager.data.LocationRepository
 import com.cs492.ringmanager.work.GeofenceBroadcastReceiver
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingClient
-import com.google.android.gms.location.GeofencingRequest
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 
 private const val TAG = "MainActivity"
@@ -38,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var geofencingClient: GeofencingClient
     private lateinit var dao: LocationDao
     private lateinit var locationRepo: LocationRepository
+    private lateinit var locationClient: FusedLocationProviderClient
+    private var cancellationTokenSource = CancellationTokenSource()
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         locationRepo = LocationRepository(dao, movieGluService)
         setupFragments()
         geofencingClient = LocationServices.getGeofencingClient(this)
-
+        locationClient = LocationServices.getFusedLocationProviderClient(this)
         setupTheaterGeofences()
         setupRecacheGeofence()
     }
@@ -66,54 +66,72 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     fun setupTheaterGeofences() {
         lifecycleScope.launch {
-            val locationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
-
             //Get current location because we're going to find theater locations nearby
+            locationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cancellationTokenSource.token)
+                .addOnSuccessListener { currentLocation ->
+                    lifecycleScope.launch {
+                        //This is what we would want in production but movieglu sends back empty content body when there are no results which retrofit chokes on.
+                        //https://kenkyee.medium.com/retrofit2-doesnt-handle-empty-content-responses-bef2b33ee8ea
+//                        val currentLocationData =
+//                            LocationData(
+//                                currentLocation.latitude,
+//                                currentLocation.longitude,
+//                                DEFAULT_RADIUS,
+//                                CURRENT_LOCATION_NAME
+//                            )
+                        val currentLocationData =
+                            LocationData(
+                                -22.0,
+                                14.0,
+                                DEFAULT_RADIUS,
+                                CURRENT_LOCATION_NAME
+                            )
+                        val allLocations = locationRepo.getAllLocations(currentLocationData)
 
-            //This doesn't work because we aren't allowed to wait in the main thread apparently.
-            //val currentLocation = Tasks.await(locationClient.lastLocation)
-            //val currentLocationData = LocationData(currentLocation.longitude, currentLocation.latitude, 75F, "Current Location")
-
-            //This is a dirty hack to just make it run but it's really not ok
-            var currentLocationData = LocationData(-22.0, 14.0, DEFAULT_RADIUS, CURRENT_LOCATION_NAME)
-            locationClient.lastLocation.addOnSuccessListener { location ->
-                currentLocationData =
-                    LocationData(location.latitude, location.longitude, DEFAULT_RADIUS, CURRENT_LOCATION_NAME)
-            }
-            //Get both user locations and locations returned by movieglu
-            val allLocations = locationRepo.getAllLocations(currentLocationData)
-            //Make geofences for all locations
-            val geofenceList = mutableListOf<Geofence>()
-            for (location in allLocations) {
-                geofenceList.add(
-                    Geofence.Builder()
-                        .setRequestId(location.latitude.toString() + "," + location.longitude.toString())
-                        .setCircularRegion(
-                            location.latitude,
-                            location.longitude,
-                            location.radius
-                        )
-                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                        .build()
-                )
-            }
-            val geofencingRequest = GeofencingRequest.Builder()
-                .addGeofences(geofenceList)
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .build()
-            geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-                addOnCompleteListener {
-                    geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)
-                        ?.run {
-                            addOnSuccessListener {
-                                Log.i(TAG, "Geo fences added to Geofencing Client.")
-                            }
-                            addOnFailureListener {
-                                Log.e(TAG, "Failed to add geo fences to Geofencing Client.")
+                        if(allLocations.isEmpty()){
+                            //Nothing to see here folks. Go home.
+                            return@launch
+                        }
+                        //Make geofences for all locations
+                        val geofenceList = mutableListOf<Geofence>()
+                        for (location in allLocations) {
+                            geofenceList.add(
+                                Geofence.Builder()
+                                    .setRequestId(location.latitude.toString() + "," + location.longitude.toString())
+                                    .setCircularRegion(
+                                        location.latitude,
+                                        location.longitude,
+                                        location.radius
+                                    )
+                                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                                    .build()
+                            )
+                        }
+                        val geofencingRequest = GeofencingRequest.Builder()
+                            .addGeofences(geofenceList)
+                            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                            .build()
+                        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+                            addOnCompleteListener {
+                                geofencingClient.addGeofences(
+                                    geofencingRequest,
+                                    geofencePendingIntent
+                                )?.run {
+                                    addOnSuccessListener {
+                                        Log.i(TAG, "Geo fences added to Geofencing Client.")
+                                    }
+                                    addOnFailureListener {
+                                        Log.e(
+                                            TAG,
+                                            "Failed to add geo fences to Geofencing Client."
+                                        )
+                                    }
+                                }
                             }
                         }
-                }
+                    }
+
             }
         }
     }
@@ -124,14 +142,13 @@ class MainActivity : AppCompatActivity() {
      */
     @SuppressLint("MissingPermission")
     fun setupRecacheGeofence() {
-        val locationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        locationClient.lastLocation.addOnSuccessListener { location ->
+        locationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cancellationTokenSource.token)
+            .addOnSuccessListener { currentLocation ->
             val geoFence = Geofence.Builder()
                 .setRequestId(RECACHE_GEOFENCE_KEY)
                 .setCircularRegion(
-                    location.latitude,
-                    location.longitude,
+                    currentLocation.latitude,
+                    currentLocation.longitude,
                     RECACHE_DISTANCE_IN_METERS
                 )
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)

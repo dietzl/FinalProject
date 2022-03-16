@@ -2,8 +2,10 @@ package com.cs492.ringmanager.data
 
 import com.cs492.ringmanager.api.MovieGluService
 import kotlinx.coroutines.flow.Flow
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ISO_INSTANT
 
 class LocationRepository(
     private val dao: LocationDao,
@@ -22,11 +24,10 @@ class LocationRepository(
     suspend fun removeUserLocation(location: LocationData) = dao.delete(location)
 
     suspend fun getServiceLocations(location: LocationData): List<LocationData>{
-        val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS[xxx][xx][X]")
-        val currentTime = LocalDateTime.now()
+        val currentTime =DateTimeFormatter.ISO_INSTANT.format(Instant.now())
         val cinemas = service.getCinemasNearby(
             location.latitude.toString()+";"+location.longitude,
-            currentTime.format(dtf)
+            currentTime
         )
         return cinemas.cinemas
     }

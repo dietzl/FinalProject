@@ -16,5 +16,6 @@
     <string name="radius_hint">Enter radius, minimum radius must be 50 meters</string>
 
     <string name="invalid_user_value">Error radius must be greater than 50</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

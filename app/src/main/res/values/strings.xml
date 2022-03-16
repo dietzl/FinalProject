@@ -2,8 +2,8 @@
     <string name="app_name">Ring Manager</string>
 
     <string name="et_input_radius_default">75</string>
-    <string name="add_location_text">Add Location</string>
-    <string name="add_radius_text">Add Radius</string>
+    <string name="add_location_text">Location</string>
+    <string name="add_radius_text">Radius</string>
     <string name="search_button">Search</string>
     <string name="button_add_location_text">Add Location</string>
 
@@ -12,5 +12,9 @@
     <string name="pref_check_movieglu_summaryoff" translatable="false">Check Movieglu Off</string>
     <string name="pref_check_movieglu_summaryon" translatable="false">Check Movieglu On</string>
 
+    <string name="location_hint">Enter location, It cannot be empty</string>
+    <string name="radius_hint">Enter radius, minimum radius must be 50 meters</string>
+
+    <string name="invalid_user_value">Error radius must be greater than 50</string>
 
 </resources>

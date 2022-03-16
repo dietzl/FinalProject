@@ -18,8 +18,6 @@ class LocationsFragment : Fragment(R.layout.locations_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //val searchBtn: Button = view.findViewById(R.id.button_add_location)
-
         locationAdapter = LocationAdapter(::onLocationItemClick)
         locationListRV = view.findViewById(R.id.rv_location_list)
         locationListRV.setHasFixedSize(true)

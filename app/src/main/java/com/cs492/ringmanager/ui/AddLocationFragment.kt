@@ -1,14 +1,13 @@
 package com.cs492.ringmanager.ui
 
 import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.cs492.ringmanager.R
 import com.cs492.ringmanager.api.MovieGluService
 import com.cs492.ringmanager.data.LocationDao
@@ -18,6 +17,7 @@ import com.cs492.ringmanager.data.LocationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Tasks
+import kotlinx.coroutines.launch
 
 class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
     private val TAG = "AddLocationFragment"
@@ -44,9 +44,14 @@ class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
 
             if(!TextUtils.isEmpty(locationName) && !(TextUtils.isEmpty(radiusString))) {
                 val radiusFloat = radiusString.toFloat()
+                //This throws an exception "Must not be called on the main application thread"
                 val currentLocation = Tasks.await(fusedLocationClient.lastLocation)
+
                 val location = LocationData(currentLocation.latitude, currentLocation.longitude, radiusFloat, locationName)
                 val repository = LocationRepository(LocationDatabase.getInstance(requireContext()).locationDao(), MovieGluService.create())
+                lifecycleScope.launch {
+                    repository.addLocation(location)
+                }
             }
         }
     }

@@ -9,7 +9,7 @@ data class LocationData(
     @Json(name = "lat") val latitude: Double,
     @Json(name = "lng") val longitude: Double,
     val radius: Float = 75F,
-    @Json(name = "cinemaName")val name: String = "Default"
+    @Json(name = "cinema_name")val name: String
 ) : Serializable
 
 data class Cinemas(

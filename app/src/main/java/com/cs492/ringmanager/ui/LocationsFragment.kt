@@ -3,12 +3,11 @@ package com.cs492.ringmanager.ui
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.widget.Button
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.cs492.ringmanager.R
 import com.cs492.ringmanager.data.LocationData
-import com.google.android.material.snackbar.Snackbar
 
 class LocationsFragment : Fragment(R.layout.locations_fragment) {
 
@@ -19,7 +18,7 @@ class LocationsFragment : Fragment(R.layout.locations_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val searchBtn: Button = view.findViewById(R.id.button_add_location)
+        //val searchBtn: Button = view.findViewById(R.id.button_add_location)
 
         locationAdapter = LocationAdapter(::onLocationItemClick)
         locationListRV = view.findViewById(R.id.rv_location_list)
@@ -38,7 +37,8 @@ class LocationsFragment : Fragment(R.layout.locations_fragment) {
 
         val fab: View = view.findViewById(R.id.fab)
         fab.setOnClickListener { view ->
-            val directions = LocationsFragmentDirections.navigate
+            val directions = LocationsFragmentDirections.navigateToAddLocationFrag()
+            findNavController().navigate(directions)
         }
     }
 

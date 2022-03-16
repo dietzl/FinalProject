@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <SwitchPreferenceCompat
+        android:title="@string/pref_check_movieglu"
+        android:key="@string/pref_check_movieglu_key"
+        app:summaryOff="@string/pref_check_movieglu_summaryoff"
+        app:summaryOn="@string/pref_check_movieglu_summaryon"
+        >
+
+    </SwitchPreferenceCompat>
+</PreferenceScreen>

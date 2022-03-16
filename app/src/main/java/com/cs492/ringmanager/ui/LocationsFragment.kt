@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cs492.ringmanager.R
 import com.cs492.ringmanager.data.LocationData
@@ -20,17 +21,14 @@ class LocationsFragment : Fragment(R.layout.locations_fragment) {
 
         locationAdapter = LocationAdapter(::onLocationItemClick)
         locationListRV = view.findViewById(R.id.rv_location_list)
+        locationListRV.layoutManager = LinearLayoutManager(requireContext())
         locationListRV.setHasFixedSize(true)
         locationListRV.adapter = locationAdapter
         setHasOptionsMenu(true)
 
         //Update the list of locations if data changes
         viewModel.savedLocations.observe(viewLifecycleOwner) { locations ->
-            if (locations != null && !locations.isEmpty()) {
-                locationAdapter.updateLocations(locations)
-                locationListRV.visibility = View.VISIBLE
-                locationListRV.scrollToPosition(0)
-            }
+            locationAdapter.updateLocations(locations)
         }
 
         val fab: View = view.findViewById(R.id.fab)

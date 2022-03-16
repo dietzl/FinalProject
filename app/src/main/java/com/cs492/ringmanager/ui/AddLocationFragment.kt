@@ -49,14 +49,22 @@ class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
             if(!TextUtils.isEmpty(locationName) && !(TextUtils.isEmpty(radiusString))) {
                 val radiusFloat = radiusString.toFloat()
                 if(radiusFloat >= 50) {
-                    //This throws an exception "Must not be called on the main application thread"
-                    val currentLocation = Tasks.await(fusedLocationClient.lastLocation)
-
-                    val location = LocationData(currentLocation.latitude, currentLocation.longitude, radiusFloat, locationName)
-                    val repository = LocationRepository(LocationDatabase.getInstance(requireContext()).locationDao(), MovieGluService.create())
-                    lifecycleScope.launch {
-                        repository.addLocation(location)
-                    }
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location: Location? ->
+                            val location = LocationData(
+                                location!!.latitude,
+                                location!!.longitude,
+                                radiusFloat,
+                                locationName
+                            )
+                            val repository = LocationRepository(
+                                LocationDatabase.getInstance(requireContext()).locationDao(),
+                                MovieGluService.create()
+                            )
+                            lifecycleScope.launch {
+                                repository.addLocation(location)
+                            }
+                        }
                 }
                 else {
                     Snackbar.make(

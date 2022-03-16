@@ -17,9 +17,11 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/purple_500"
         android:src="@drawable/ic_add_foreground"
-        android:layout_margin="16dp" />
+        app:fabSize="mini" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_location_list"

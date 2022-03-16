@@ -8,19 +8,23 @@
         android:id="@+id/et_location_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_location_text"/>
+        android:hint="@string/location_hint"
+        android:text="@string/add_location_text" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/et_radius_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/radius_hint"
+        android:minHeight="48dp"
         android:text="@string/add_radius_text" />
 
     <Button
         android:id="@+id/search_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-         />
+        android:layout_gravity="center"
+        android:text="@string/button_add_location_text"/>
 
 
 </LinearLayout>

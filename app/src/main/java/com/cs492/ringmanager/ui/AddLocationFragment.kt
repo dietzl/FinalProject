@@ -18,6 +18,7 @@ import com.cs492.ringmanager.data.LocationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Tasks
+import com.google.android.material.snackbar.Snackbar
 
 class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
     private val TAG = "AddLocationFragment"
@@ -44,9 +45,18 @@ class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
 
             if(!TextUtils.isEmpty(locationName) && !(TextUtils.isEmpty(radiusString))) {
                 val radiusFloat = radiusString.toFloat()
-                val currentLocation = Tasks.await(fusedLocationClient.lastLocation)
-                val location = LocationData(currentLocation.latitude, currentLocation.longitude, radiusFloat, locationName)
-                val repository = LocationRepository(LocationDatabase.getInstance(requireContext()).locationDao(), MovieGluService.create())
+                if(radiusFloat >= 50) {
+                    val currentLocation = Tasks.await(fusedLocationClient.lastLocation)
+                    val location = LocationData(currentLocation.latitude, currentLocation.longitude, radiusFloat, locationName)
+                    val repository = LocationRepository(LocationDatabase.getInstance(requireContext()).locationDao(), MovieGluService.create())
+                }
+                else {
+                    Snackbar.make(
+                        requireView(),
+                        R.string.invalid_user_value,
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }

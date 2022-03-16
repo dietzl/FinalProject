@@ -7,6 +7,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.cs492.ringmanager.R
 import com.cs492.ringmanager.data.LocationData
+import com.google.android.material.snackbar.Snackbar
 
 class LocationsFragment : Fragment(R.layout.locations_fragment) {
 
@@ -30,6 +31,11 @@ class LocationsFragment : Fragment(R.layout.locations_fragment) {
                 locationListRV.visibility = View.VISIBLE
                 locationListRV.scrollToPosition(0)
             }
+        }
+
+        val fab: View = view.findViewById(R.id.fab)
+        fab.setOnClickListener { view ->
+            val directions = LocationsFragmentDirections.navigate
         }
     }
 

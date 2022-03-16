@@ -24,9 +24,10 @@ class LocationRepository(
     suspend fun getServiceLocations(location: LocationData): List<LocationData>{
         val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS[xxx][xx][X]")
         val currentTime = LocalDateTime.now()
-        return service.getCinemasNearby(
+        val cinemas = service.getCinemasNearby(
             location.latitude.toString()+";"+location.longitude,
             currentTime.format(dtf)
         )
+        return cinemas.cinemas
     }
 }

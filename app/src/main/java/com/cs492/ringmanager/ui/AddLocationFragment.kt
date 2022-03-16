@@ -21,7 +21,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Tasks
 import kotlinx.coroutines.launch
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.launch
+import kotlin.random.Random.Default.nextDouble
 
 class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
     private val TAG = "AddLocationFragment"
@@ -51,9 +51,16 @@ class AddLocationFragment : Fragment(R.layout.add_locations_fragment){
                 if(radiusFloat >= 50) {
                     fusedLocationClient.lastLocation
                         .addOnSuccessListener { location: Location? ->
+                            //This is what we would want in production but for the sake of testing we'll grab random coordinates
+//                            val location = LocationData(
+//                                location!!.latitude,
+//                                location!!.longitude,
+//                                radiusFloat,
+//                                locationName
+//                            )
                             val location = LocationData(
-                                location!!.latitude,
-                                location!!.longitude,
+                                nextDouble(90.0),
+                                nextDouble(180.0),
                                 radiusFloat,
                                 locationName
                             )
